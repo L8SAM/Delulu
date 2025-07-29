@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -6,10 +7,10 @@
   <title>Delulu-List Pro</title>
   <style>
     :root {
-      --bg: #d8b4f8;         /* Lila Hintergrund */
+      --bg: #d8b4f8;
       --text: #111111;
-      --card: #ffffff;       /* Weiße Kacheln */
-      --highlight: #8e44ad;  /* Lila Buttons */
+      --card: #ffffff;
+      --highlight: #8e44ad;
     }
     body.dark {
       --bg: #1e1e1e;
@@ -38,20 +39,26 @@
       border-radius: 20px;
     }
 
-    .controls {
+    .controls, .note-controls {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
       margin-bottom: 1rem;
     }
 
-    input, select, button {
+    input, select, button, textarea {
       padding: 10px;
       border-radius: 8px;
       font-size: 1rem;
       border: 1px solid #ccc;
       background: var(--card);
       color: var(--text);
+    }
+
+    textarea {
+      flex: 1;
+      min-height: 80px;
+      resize: vertical;
     }
 
     button {
@@ -73,17 +80,13 @@
       border: 1px solid var(--text);
     }
 
-    ul { list-style: none; padding: 0; }
+    ul, .note-list { list-style: none; padding: 0; }
 
-    li {
+    li, .note-item {
       background: var(--card);
       margin-bottom: 10px;
       padding: 1rem;
       border-radius: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
       animation: fadeIn 0.4s ease;
     }
 
@@ -111,8 +114,16 @@
       transform: rotateY(180deg);
     }
 
+    .notes-section {
+      margin-top: 3rem;
+    }
+
+    .notes-section h2 {
+      margin-bottom: 0.5rem;
+    }
+
     @media (max-width: 600px) {
-      .controls { flex-direction: column; }
+      .controls, .note-controls { flex-direction: column; }
       li { flex-direction: column; align-items: flex-start; }
     }
   </style>
@@ -143,6 +154,15 @@
 
     <ul id="bucketList"></ul>
     <div class="status" id="statusCount"></div>
+
+    <div class="notes-section">
+      <h2>📝 Notizen & Gedanken</h2>
+      <div class="note-controls">
+        <textarea id="noteText" placeholder="Teile deine Gedanken oder Ankündigungen..."></textarea>
+        <button onclick="addNote()">💬 Eintragen</button>
+      </div>
+      <div class="note-list" id="noteList"></div>
+    </div>
   </div>
 
   <!-- Firebase SDK -->
@@ -177,6 +197,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const listRef = db.ref("deluluItems");
+    const notesRef = db.ref("deluluNotes");
 
     function addItem() {
       const text = document.getElementById("itemText").value.trim();
@@ -225,7 +246,31 @@
       });
     }
 
+    function addNote() {
+      const text = document.getElementById("noteText").value.trim();
+      if (!text) return;
+      const note = { text, timestamp: Date.now() };
+      notesRef.push(note);
+      document.getElementById("noteText").value = "";
+    }
+
+    function renderNotes() {
+      notesRef.on("value", snapshot => {
+        const container = document.getElementById("noteList");
+        container.innerHTML = "";
+        snapshot.forEach(child => {
+          const note = child.val();
+          const div = document.createElement("div");
+          const time = new Date(note.timestamp).toLocaleString();
+          div.className = "note-item";
+          div.innerHTML = `<div>${note.text}</div><div class="meta">${time}</div>`;
+          container.prepend(div);
+        });
+      });
+    }
+
     renderList();
+    renderNotes();
   </script>
 </body>
 </html>
