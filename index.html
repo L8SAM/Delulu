@@ -1,1 +1,193 @@
 
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Delulu-List Pro – Animiert</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --card: #f9f9f9;
+      --highlight: #3498db;
+    }
+    body.dark {
+      --bg: #1e1e1e;
+      --text: #eeeeee;
+      --card: #2a2a2a;
+      --highlight: #9b59b6;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: sans-serif;
+      margin: 0;
+      padding: 2rem;
+      transition: background 0.4s, color 0.4s;
+    }
+    .container { max-width: 800px; margin: auto; }
+    h1 { text-align: center; }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+    input, select, button {
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: var(--highlight);
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    button:hover {
+      transform: scale(1.05);
+    }
+    .toggle-theme {
+      float: right;
+      background: none;
+      color: var(--text);
+      border: 1px solid var(--text);
+    }
+    ul { list-style: none; padding: 0; }
+    li {
+      background: var(--card);
+      margin-bottom: 10px;
+      padding: 1rem;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      animation: fadeIn 0.4s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .meta {
+      font-size: 0.85rem;
+      color: gray;
+    }
+    .status {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    input[type="checkbox"] {
+      transform-origin: center;
+      transition: transform 0.3s ease;
+    }
+    input[type="checkbox"]:checked {
+      transform: rotateY(180deg);
+    }
+    @media (max-width: 600px) {
+      .controls { flex-direction: column; }
+      li { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="toggle-theme" onclick="toggleTheme()">🌗 Theme</button>
+    <h1>🦄 Delulu-List Pro</h1>
+
+    <div class="controls">
+      <input type="text" id="itemText" placeholder="Traumziel..." />
+      <select id="itemAuthor">
+        <option value="Noah">👱 Noah</option>
+        <option value="Shirin">👩‍🦰 Shirin</option>
+      </select>
+      <select id="itemTimeframe">
+        <option value="jetzt">📍 Jetzt</option>
+        <option value="jahr">🗓 Im nächsten Jahr</option>
+        <option value="zukunft">🌌 Irgendwann</option>
+      </select>
+      <button onclick="addItem()">➕ Hinzufügen</button>
+    </div>
+
+    <ul id="bucketList"></ul>
+    <div class="status" id="statusCount"></div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBKrD4FnVNxhAtcm8vLfNA0xvReYbjQkLY",
+      authDomain: "delulu-b5416.firebaseapp.com",
+      databaseURL: "https://delulu-b5416-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "delulu-b5416",
+      storageBucket: "delulu-b5416.firebasestorage.app",
+      messagingSenderId: "758486842158",
+      appId: "1:758486842158:web:b423e2ea1e1058f36c18bf",
+      measurementId: "G-BFTV5VK69N"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const listRef = db.ref("deluluItems");
+
+    function toggleTheme() {
+      document.body.classList.toggle("dark");
+    }
+
+    function addItem() {
+      const text = document.getElementById("itemText").value.trim();
+      const author = document.getElementById("itemAuthor").value;
+      const timeframe = document.getElementById("itemTimeframe").value;
+      if (!text) return;
+      const newItem = { text, author, timeframe, done: false, timestamp: Date.now() };
+      listRef.push(newItem);
+      document.getElementById("itemText").value = "";
+    }
+
+    function toggleDone(key, current) {
+      listRef.child(key).update({ done: !current });
+    }
+
+    function removeItem(key) {
+      listRef.child(key).remove();
+    }
+
+    function renderList() {
+      listRef.on("value", snapshot => {
+        const ul = document.getElementById("bucketList");
+        const status = document.getElementById("statusCount");
+        ul.innerHTML = "";
+        let total = 0, done = 0;
+
+        snapshot.forEach(child => {
+          const item = child.val();
+          const key = child.key;
+          total++;
+          if (item.done) done++;
+
+          const li = document.createElement("li");
+          li.innerHTML = `
+            <div>
+              <input type="checkbox" ${item.done ? "checked" : ""} onclick="toggleDone('${key}', ${item.done})" />
+              <strong style="margin-left: 8px;">${item.text}</strong>
+              <div class="meta">👤 ${item.author} · 🕓 ${item.timeframe}</div>
+            </div>
+            <button onclick="removeItem('${key}')">🗑️</button>
+          `;
+          ul.appendChild(li);
+        });
+
+        status.textContent = \`✅ Erledigt: \${done} / \${total}\`;
+      });
+    }
+
+    renderList();
+  </script>
+</body>
+</html>
