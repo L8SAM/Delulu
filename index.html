@@ -12,12 +12,14 @@
       --text: #111;
       --card: #fff;
       --highlight: #855dc1;
+      --button-neutral: #ddd;
     }
     body.dark {
       --bg: #1e1e1e;
       --text: #eee;
       --card: #2a2a2a;
       --highlight: #855dc1;
+      --button-neutral: #444;
     }
     * {
       transition: background 0.3s ease, color 0.3s ease;
@@ -45,19 +47,49 @@
       background: var(--card);
       color: var(--text);
     }
-    button { background: var(--highlight); color: white; border: none; cursor: pointer; }
+    button {
+      border: none;
+      cursor: pointer;
+    }
     button:hover { transform: scale(1.05); }
     .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 1rem; }
     ul { list-style: none; padding: 0; }
     li {
-      background: var(--card); margin-bottom: 10px; padding: 1rem;
+      background: var(--card);
+      margin-bottom: 10px;
+      padding: 1rem;
       border-radius: 8px;
       animation: fadeIn 0.4s ease;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      display: flex; justify-content: space-between; align-items: flex-start;
     }
-    .goal-content { width: 100%; }
-    .goal-controls { display: flex; gap: 10px; margin-top: 5px; }
+    .goal-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .goal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .goal-text {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .goal-controls {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .neutral-button {
+      background: var(--button-neutral);
+      color: var(--text);
+      padding: 6px 8px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
     .done { text-decoration: line-through; opacity: 0.6; }
     .comment-section input { width: 100%; margin-top: 5px; }
     .sort-controls { margin-bottom: 1rem; }
@@ -84,7 +116,7 @@
         <option value="jahr">Im nächsten Jahr</option>
         <option value="zukunft">Irgendwann</option>
       </select>
-      <button onclick="addItem()">➕ Hinzufügen</button>
+      <button style="background: var(--highlight);" onclick="addItem()">➕ Hinzufügen</button>
     </div>
 
     <div class="sort-controls">
@@ -195,19 +227,25 @@
         const doneClass = goal.done ? "done" : "";
         li.innerHTML = `
           <div class="goal-content">
-            <input type="checkbox" ${goal.done ? "checked" : ""} onchange="toggleDone('${key}', ${goal.done})" />
-            <strong class="${doneClass}">${goal.done ? "✅ " : ""}${goal.text}</strong> (${goal.author}, ${goal.timeframe})
+            <div class="goal-header">
+              <div class="goal-text">
+                <input type="checkbox" ${goal.done ? "checked" : ""} onchange="toggleDone('${key}', ${goal.done})" />
+                <strong class="${doneClass}">${goal.text}</strong>
+              </div>
+              ${goal.done ? "<span>✅</span>" : ""}
+            </div>
+            <small>(${goal.author}, ${goal.timeframe})</small>
             <div class="comment-section">
               <input type="text" placeholder="Kommentar hinzufügen..." onkeypress="if(event.key==='Enter'){ addComment('${key}', this.value); this.value=''; }" />
               <div>
                 ${(goal.comments || []).map((c, i) => `
-                  <div>💬 ${c} <button onclick="deleteComment('${key}', ${i})" style="margin-left:10px;">❌</button></div>
+                  <div>💬 ${c} <button class="neutral-button" onclick="deleteComment('${key}', ${i})">❌</button></div>
                 `).join("")}
               </div>
             </div>
-          </div>
-          <div class="goal-controls">
-            <button onclick="deleteGoal('${key}')">🗑️</button>
+            <div class="goal-controls">
+              <button class="neutral-button" onclick="deleteGoal('${key}')">🗑️ Ziel</button>
+            </div>
           </div>`;
         list.appendChild(li);
       });
