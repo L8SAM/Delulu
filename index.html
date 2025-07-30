@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Delulu-List – Sortiert & Erledigt unten</title>
+  <title>Delulu-List</title>
   <link rel="icon" href="delulu-favicon-128x128.png" type="image/png" />
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
   <style>
@@ -159,6 +159,17 @@
       });
     }
 
+    function deleteComment(goalId, commentIndex) {
+      const commentRef = db.ref("goals/" + goalId + "/comments");
+      commentRef.once("value", snapshot => {
+        const comments = snapshot.val() || [];
+        if (confirm('Kommentar wirklich löschen?')) {
+          comments.splice(commentIndex, 1);
+          commentRef.set(comments);
+        }
+      });
+    }
+
     function renderGoals() {
       const list = document.getElementById("bucketList");
       list.innerHTML = "";
@@ -185,10 +196,14 @@
         li.innerHTML = `
           <div class="goal-content">
             <input type="checkbox" ${goal.done ? "checked" : ""} onchange="toggleDone('${key}', ${goal.done})" />
-            <strong class="${doneClass}">${goal.text}</strong> (${goal.author}, ${goal.timeframe})
+            <strong class="${doneClass}">${goal.done ? "✅ " : ""}${goal.text}</strong> (${goal.author}, ${goal.timeframe})
             <div class="comment-section">
               <input type="text" placeholder="Kommentar hinzufügen..." onkeypress="if(event.key==='Enter'){ addComment('${key}', this.value); this.value=''; }" />
-              <div>${(goal.comments || []).map(c => "💬 " + c).join("<br>")}</div>
+              <div>
+                ${(goal.comments || []).map((c, i) => `
+                  <div>💬 ${c} <button onclick="deleteComment('${key}', ${i})" style="margin-left:10px;">❌</button></div>
+                `).join("")}
+              </div>
             </div>
           </div>
           <div class="goal-controls">
