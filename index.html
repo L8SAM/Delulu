@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+  <link rel="manifest" href="manifest.json" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Delulu-List</title>
@@ -161,5 +162,12 @@
   <script defer src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database-compat.js"></script>
   <script defer src="app.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js")
+        .then(() => console.log("✅ Service Worker registriert"))
+        .catch(e => console.error("❌ Service Worker Fehler:", e));
+    }
+  </script>
 </body>
 </html>
