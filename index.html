@@ -16,7 +16,7 @@
       margin-bottom: 1rem;
     }
     h1 {
-      color: white;
+      color: black;
       text-shadow: 0 1px 6px rgba(0,0,0,0.6);
     }
     h2, h3, h4, label {
@@ -50,13 +50,7 @@
       --highlight: #855dc1;
       --button-neutral: #ddd;
     }
-    body.dark {
-      --bg: #1e1e1e;
-      --text: #eee;
-      --card: #2a2a2a;
-      --highlight: #855dc1;
-      --button-neutral: #444;
-    }
+    
     * {
       transition: background 0.3s ease, color 0.3s ease;
     }
@@ -86,7 +80,7 @@
     h1 {
       text-align: center;
       font-family: 'Pacifico', cursive;
-      text-shadow: 1px 1px 4px rgba(255,255,255,0.6);
+      text-shadow: none;
     }
     input, select, button {
       padding: 10px;
@@ -152,7 +146,7 @@
 <body>
   <div class="container">
     <div class="top-bar">
-      <h1>Delulu-List</h1>
+      
       <div class="user-select">
         <label for="username">👤</label>
         <select id="username">
@@ -166,19 +160,12 @@
       <input type="text" id="searchInput" placeholder="Ziel durchsuchen..." oninput="renderGoals()" />
     </div>
     <div class="top-bar">
-      <img src="logo.png" alt="Logo" class="logo">
-      <button class="toggle-theme" onclick="toggleTheme()">🌗 Theme</button>
+      
+      
     </div>
     <h1>Delulu-List</h1>
 
-    <div class="user-section">
-      <label for="username">Benutzer wählen: </label>
-      <select id="username" onchange="setUsername(this.value)">
-        <option value="">Bitte wählen</option>
-        <option value="Noah">Noah</option>
-        <option value="Shirin">Shirin</option>
-      </select>
-    </div>
+    
 
     <div class="controls">
       <input type="text" id="itemText" placeholder="Traumziel..." />
