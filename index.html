@@ -9,6 +9,40 @@
   <link rel="icon" href="delulu-favicon-512x512.png" type="image/png" />
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
   <style>
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    h1 {
+      color: white;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+    }
+    h2, h3, h4, label {
+      color: white;
+      text-shadow: none;
+    }
+    .user-select {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .search-toggle {
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: var(--text);
+    }
+    .search-bar {
+      display: none;
+      margin-top: 0.5rem;
+    }
+    .search-bar.active {
+      display: block;
+    }
+
     :root {
       --bg: #3a1b60;
       --text: #111;
@@ -118,6 +152,20 @@
 <body>
   <div class="container">
     <div class="top-bar">
+      <h1>Delulu-List</h1>
+      <div class="user-select">
+        <label for="username">👤</label>
+        <select id="username">
+          <option value="Noah">Noah</option>
+          <option value="Shirin">Shirin</option>
+        </select>
+        <button class="search-toggle" onclick="toggleSearch()">🔍</button>
+      </div>
+    </div>
+    <div class="search-bar" id="searchContainer">
+      <input type="text" id="searchInput" placeholder="Ziel durchsuchen..." oninput="renderGoals()" />
+    </div>
+    <div class="top-bar">
       <img src="logo.png" alt="Logo" class="logo">
       <button class="toggle-theme" onclick="toggleTheme()">🌗 Theme</button>
     </div>
@@ -159,15 +207,35 @@
     <ul id="bucketList"></ul>
   </div>
 
-  <script defer src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database-compat.js"></script>
-  <script defer src="app.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js">
+    function toggleSearch() {
+      document.getElementById("searchContainer").classList.toggle("active");
+      document.getElementById("searchInput").focus();
+    }
+</script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database-compat.js">
+    function toggleSearch() {
+      document.getElementById("searchContainer").classList.toggle("active");
+      document.getElementById("searchInput").focus();
+    }
+</script>
+  <script defer src="app.js">
+    function toggleSearch() {
+      document.getElementById("searchContainer").classList.toggle("active");
+      document.getElementById("searchInput").focus();
+    }
+</script>
   <script>
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("service-worker.js")
         .then(() => console.log("✅ Service Worker registriert"))
         .catch(e => console.error("❌ Service Worker Fehler:", e));
     }
-  </script>
+  
+    function toggleSearch() {
+      document.getElementById("searchContainer").classList.toggle("active");
+      document.getElementById("searchInput").focus();
+    }
+</script>
 </body>
 </html>
