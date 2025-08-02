@@ -1,20 +1,14 @@
 {
   "name": "Delulu-List",
   "short_name": "Delulu",
-  "start_url": ".",
+  "start_url": "./",
   "display": "standalone",
-  "background_color": "#855dc1",
+  "background_color": "#3a1b60",
   "theme_color": "#855dc1",
-  "description": "Eine interaktive Bucketlist von Noah & Shirin.",
   "icons": [
     {
-      "src": "delulu-favicon-512x512.png",
+      "src": "logo.png",
       "sizes": "512x512",
-      "type": "image/png"
-    },
-    {
-      "src": "delulu-favicon-128x128.png",
-      "sizes": "128x128",
       "type": "image/png"
     }
   ]
