@@ -116,7 +116,7 @@ function createGoalItem(goal) {
 
   const commentHtml = goal.comments ? Object.entries(goal.comments).map(([key, c]) =>
     `<div><strong>${c.name}:</strong> ${c.text}
-      
+      <span onclick="deleteComment('${goal.id}', '${key}')" style='cursor:pointer;color:black;margin-left:6px'>✖</span>
     </div>`).join("") : "";
 
   li.innerHTML = `
@@ -127,6 +127,7 @@ function createGoalItem(goal) {
           <strong>${goal.text}</strong>
         </div>
         <small>${goal.author} – ${goal.timeframe}
+          <button onclick="deleteGoal('${goal.id}')" style='float:right;color:red;background:none;border:none;font-size:16px;'>🗑</button>
           
         </small>
       </div>
@@ -153,7 +154,11 @@ function updateProgress(goals) {
 }
 
 
-function deleteGoal(id) {}
+function deleteGoal(id) {
+  if (confirm("Willst du dieses Ziel wirklich löschen?")) {
+    goalsRef.child(id).remove();
+  }
+}
 }
 
 function deleteComment(goalId, commentKey) {}
