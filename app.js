@@ -1,3 +1,4 @@
+
 let currentUser = "";
 
 // Benutzer speichern/laden
@@ -88,14 +89,24 @@ function renderGoals() {
   const recent = document.getElementById("recentChanges");
   const search = document.getElementById("searchInput")?.value.toLowerCase() || "";
   const sort = document.getElementById("sortType")?.value || "timeframe";
+  const authorFilter = getUsername();
 
   list.innerHTML = "";
   recent.innerHTML = "";
 
-  let filtered = goalsList.filter(goal =>
-    goal.text.toLowerCase().includes(search) &&
-    (getUsername() ? goal.author === getUsername() : true)
-  );
+  let filtered = goalsList.filter(goal => {
+    const textMatch = goal.text?.toLowerCase().includes(search);
+    const authorMatch = authorFilter ? goal.author === authorFilter : true;
+    return textMatch && authorMatch;
+  });
+
+  // Fallbacks für fehlende Felder
+  filtered.forEach(g => {
+    g.updatedAt = g.updatedAt || 0;
+    g.timeframe = g.timeframe || "zukunft";
+    g.author = g.author || "unbekannt";
+    g.text = g.text || "";
+  });
 
   const now = Date.now();
   const recentGoals = filtered.filter(g => now - g.updatedAt < 7 * 24 * 60 * 60 * 1000);
