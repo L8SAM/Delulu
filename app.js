@@ -1,6 +1,6 @@
-
 let currentUser = "";
 
+// Benutzer speichern/laden
 function setUsername(name) {
   currentUser = name;
   localStorage.setItem("deluluUser", name);
@@ -10,15 +10,7 @@ function getUsername() {
   return localStorage.getItem("deluluUser") || "";
 }
 
-window.addEventListener("DOMContentLoaded", () => {
-  const saved = getUsername();
-  if (saved) {
-    currentUser = saved;
-    const userSelect = document.getElementById("username");
-    if (userSelect) userSelect.value = saved;
-  }
-});
-
+// Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBKrD4FnVNxhAtcm8vLfNA0xvReYbjQkLY",
   authDomain: "delulu-b5416.firebaseapp.com",
@@ -35,12 +27,33 @@ const goalsRef = db.ref("goals");
 
 let goalsList = [];
 
+window.addEventListener("DOMContentLoaded", () => {
+  const saved = getUsername();
+  if (saved) {
+    currentUser = saved;
+    const userSelect = document.getElementById("username");
+    if (userSelect) userSelect.value = saved;
+  }
+
+  document.getElementById("username").addEventListener("change", (e) => {
+    setUsername(e.target.value);
+    renderGoals();
+  });
+
+  goalsRef.on("value", (snapshot) => {
+    const data = snapshot.val() || {};
+    goalsList = Object.entries(data).map(([id, goal]) => ({ id, ...goal }));
+    renderGoals();
+  });
+});
+
 function addItem() {
   const text = document.getElementById("itemText").value.trim();
   const timeframe = document.getElementById("itemTimeframe").value;
   const author = getUsername();
   if (!author) return alert("Bitte Benutzer wählen!");
   if (text.length < 3) return alert("Bitte ein Ziel eingeben.");
+
   const newGoal = {
     text,
     author,
@@ -54,103 +67,86 @@ function addItem() {
 }
 
 function toggleDone(id, current) {
-  goalsRef.child(id).update({ done: !current, updatedAt: Date.now() });
-}
-
-function deleteGoal(id) {
-  if (confirm("Willst du dieses Ziel wirklich löschen?")) {
-    goalsRef.child(id).remove();
-  }
-}
-
-function addComment(goalId, text) {
-  const name = getUsername();
-  if (!name) return alert("Bitte Benutzer wählen!");
-  if (!text.trim()) return;
-  const commentRef = db.ref("goals/" + goalId + "/comments");
-  commentRef.once("value", snapshot => {
-    const comments = snapshot.val() || [];
-    comments.push({ author: name, text, createdAt: Date.now() });
-    commentRef.set(comments);
-    goalsRef.child(goalId).update({ updatedAt: Date.now() });
+  goalsRef.child(id).update({
+    done: !current,
+    updatedAt: Date.now()
   });
 }
 
-function deleteComment(goalId, index) {
-  if (!confirm("Kommentar wirklich löschen?")) return;
-  const commentRef = db.ref("goals/" + goalId + "/comments");
-  commentRef.once("value", snapshot => {
-    const comments = snapshot.val() || [];
-    comments.splice(index, 1);
-    commentRef.set(comments);
-    goalsRef.child(goalId).update({ updatedAt: Date.now() });
+function addComment(id, text) {
+  if (!text) return;
+  const name = getUsername();
+  goalsRef.child(id).child("comments").push({
+    text,
+    name,
+    time: Date.now()
   });
 }
 
 function renderGoals() {
   const list = document.getElementById("bucketList");
-  const recentList = document.getElementById("recentChanges");
+  const recent = document.getElementById("recentChanges");
+  const search = document.getElementById("searchInput")?.value.toLowerCase() || "";
+  const sort = document.getElementById("sortType")?.value || "timeframe";
+
   list.innerHTML = "";
-  recentList.innerHTML = "";
+  recent.innerHTML = "";
 
-  const sortType = document.getElementById("sortType").value;
-  const search = document.getElementById("searchBox").value.toLowerCase();
-
-  const sorted = [...goalsList].sort((a, b) => {
-    if (sortType === "timeframe") return a.value.timeframe.localeCompare(b.value.timeframe);
-    if (sortType === "author") return a.value.author.localeCompare(b.value.author);
-    if (sortType === "text") return a.value.text.localeCompare(b.value.text);
-    return 0;
-  });
+  let filtered = goalsList.filter(goal =>
+    goal.text.toLowerCase().includes(search) &&
+    (getUsername() ? goal.author === getUsername() : true)
+  );
 
   const now = Date.now();
-  const recent = sorted.filter(g => now - (g.value.updatedAt || 0) <= 7 * 86400000);
-  const notRecent = sorted.filter(g => now - (g.value.updatedAt || 0) > 7 * 86400000);
+  const recentGoals = filtered.filter(g => now - g.updatedAt < 7 * 24 * 60 * 60 * 1000);
+  const otherGoals = filtered.filter(g => now - g.updatedAt >= 7 * 24 * 60 * 60 * 1000);
 
-  const renderList = (target, items) => {
-    items.forEach(child => {
-      const goal = child.value;
-      const key = child.key;
-      if (!goal.text.toLowerCase().includes(search)) return;
-      const li = document.createElement("li");
-      const doneClass = goal.done ? "done" : "";
-      li.innerHTML = `
-        <div class="goal-content">
-          <div class="goal-header">
-            <div class="goal-text">
-              <input type="checkbox" ${goal.done ? "checked" : ""} onchange="toggleDone('${key}', ${goal.done})" />
-              <strong class="${doneClass}">${goal.text}</strong> (${goal.author}, ${goal.timeframe}) ${goal.done ? "✅" : ""}
-            </div>
-          </div>
-          <div class="comment-section">
-            <input type="text" placeholder="Kommentar hinzufügen..." onkeypress="if(event.key==='Enter'){ addComment('${key}', this.value); this.value=''; }" />
-            <div>
-              ${(goal.comments || []).map((c, i) =>
-                `💬 <b>${c.author}</b>: ${c.text} <button onclick="deleteComment('${key}', ${i})" class="neutral-button">✖</button>`
-              ).join("<br>")}
-            </div>
-          </div>
-          <div class="goal-controls">
-            <button class="neutral-button" onclick="deleteGoal('${key}')">🗑️</button>
-          </div>
-        </div>`;
-      target.appendChild(li);
-    });
+  const sorter = {
+    timeframe: (a, b) => a.timeframe.localeCompare(b.timeframe),
+    author: (a, b) => a.author.localeCompare(b.author),
+    text: (a, b) => a.text.localeCompare(b.text)
   };
 
-  renderList(recentList, recent);
-  renderList(list, notRecent);
+  recentGoals.sort(sorter[sort]);
+  otherGoals.sort(sorter[sort]);
 
-  const doneCount = sorted.filter(g => g.value.done).length;
-  const totalCount = sorted.length;
-  const percent = Math.round((doneCount / (totalCount || 1)) * 100);
-  document.getElementById("progressBar").textContent = `Fortschritt: ${percent}%`;
+  recentGoals.forEach(goal => recent.appendChild(createGoalItem(goal)));
+  otherGoals.forEach(goal => list.appendChild(createGoalItem(goal)));
+
+  updateProgress(filtered);
 }
 
-goalsRef.on("value", snapshot => {
-  goalsList = [];
-  snapshot.forEach(child => {
-    goalsList.push({ key: child.key, value: child.val() });
-  });
-  renderGoals();
-});
+function createGoalItem(goal) {
+  const li = document.createElement("li");
+  if (goal.done) li.classList.add("done");
+
+  li.innerHTML = `
+    <div class="goal-content">
+      <div class="goal-header">
+        <div class="goal-text">
+          <input type="checkbox" ${goal.done ? "checked" : ""} onchange="toggleDone('${goal.id}', ${goal.done})" />
+          <strong>${goal.text}</strong>
+        </div>
+        <small>${goal.author} – ${goal.timeframe}</small>
+      </div>
+      <div class="goal-controls">
+        <input type="text" placeholder="Kommentieren…" onkeypress="if(event.key==='Enter'){addComment('${goal.id}', this.value); this.value=''}" />
+      </div>
+      <div class="comment-section">
+        ${goal.comments ? Object.values(goal.comments).map(c =>
+          `<div><strong>${c.name}:</strong> ${c.text}</div>`).join("") : ""}
+      </div>
+    </div>
+  `;
+  return li;
+}
+
+function updateProgress(goals) {
+  if (!goals.length) {
+    document.getElementById("progressBar").textContent = "Fortschritt: 0%";
+    return;
+  }
+  const done = goals.filter(g => g.done).length;
+  const percent = Math.round((done / goals.length) * 100);
+  document.getElementById("progressBar").textContent = `Fortschritt: ${percent}%`;
+}
