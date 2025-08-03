@@ -13,9 +13,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const goalsRef = db.ref("goals");
 
-function formatDate(ts) {
-  const d = new Date(ts || Date.now());
-  return d.toLocaleDateString("de-CH") + " " + d.toLocaleTimeString("de-CH", {hour: '2-digit', minute: '2-digit'});
+);
 }
 
 let goalsList = [];
@@ -85,9 +83,7 @@ function createGoalItem(goal) {
     <div class="goal-content">
       <div class="goal-header">
         <div class="goal-text">
-          <div style="background:white;color:black;padding:4px 8px;border-radius:8px 8px 8px 0;max-width:fit-content;font-size:0.75rem;">
-            📅 ${formatDate(goal.updatedAt)}
-          </div>
+          
           <input type="checkbox" ${goal.done ? "checked" : ""} onchange="toggleDone('${goal.id}', ${goal.done})" />
           <strong>${goal.text || ""}</strong>
         </div>
@@ -106,7 +102,6 @@ function createGoalItem(goal) {
 
 function renderGoals() {
   const list = document.getElementById("bucketList");
-  const recent = document.getElementById("recentChanges");
   const doneList = document.getElementById("doneList");
   const search = document.getElementById("searchInput")?.value.toLowerCase() || "";
 
@@ -115,13 +110,16 @@ function renderGoals() {
   doneList.innerHTML = "";
 
   const filtered = goalsList.filter(goal => (goal.text || "").toLowerCase().includes(search));
-
-  const now = Date.now();
-  const recentGoals = filtered.filter(g => !g.done && now - (g.updatedAt || 0) < 7 * 86400000);
-  const otherGoals = filtered.filter(g => !g.done && now - (g.updatedAt || 0) >= 7 * 86400000);
+  const sortedGoals = filtered.filter(g => !g.done)
+    .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
   const doneGoals = filtered.filter(g => g.done);
 
-  [...recentGoals, ...otherGoals].forEach(g => list.appendChild(createGoalItem(g)));
+
+  const now = Date.now();
+  
+  const doneGoals = filtered.filter(g => g.done);
+
+  sortedGoals.forEach(g => list.appendChild(createGoalItem(g)));
   doneGoals.forEach(g => doneList.appendChild(createGoalItem(g)));
 
   const doneCount = filtered.filter(g => g.done).length;
