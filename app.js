@@ -161,5 +161,11 @@ function deleteGoal(id) {
 }
 }
 
-function deleteComment(goalId, commentKey) {}
+
+function deleteComment(goalId, commentKey) {
+  if (confirm("Willst du diesen Kommentar wirklich löschen?")) {
+    goalsRef.child(goalId).child("comments").child(commentKey).remove();
+  }
+}
+
 }
