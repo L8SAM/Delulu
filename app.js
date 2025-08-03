@@ -1,4 +1,11 @@
 
+function formatDate(timestamp) {
+  const d = new Date(timestamp);
+  return d.toLocaleDateString("de-CH") + " " + d.toLocaleTimeString("de-CH", {hour: '2-digit', minute: '2-digit'});
+}
+
+
+
 let currentUser = "";
 
 // Benutzer speichern/laden
@@ -123,6 +130,9 @@ function createGoalItem(goal) {
     <div class="goal-content">
       <div class="goal-header">
         <div class="goal-text">
+          <div style="background:white;color:black;padding:4px 8px;border-radius:8px 8px 8px 0;max-width:fit-content;font-size:0.75rem;">
+            📅 <span>${formatDate(goal.updatedAt)}</span>
+          </div>
           <input type="checkbox" ${goal.done ? "checked" : ""} onchange="toggleDone('${goal.id}', ${goal.done})" />
           <strong>${goal.text}</strong>
         </div>
