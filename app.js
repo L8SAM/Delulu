@@ -38,7 +38,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("username").addEventListener("change", (e) => {
     setUsername(e.target.value);
-    renderGoals();
   });
 
   goalsRef.on("value", (snapshot) => {
@@ -89,18 +88,15 @@ function renderGoals() {
   const recent = document.getElementById("recentChanges");
   const search = document.getElementById("searchInput")?.value.toLowerCase() || "";
   const sort = document.getElementById("sortType")?.value || "timeframe";
-  const authorFilter = getUsername();
 
   list.innerHTML = "";
   recent.innerHTML = "";
 
   let filtered = goalsList.filter(goal => {
     const textMatch = goal.text?.toLowerCase().includes(search);
-    const authorMatch = authorFilter ? goal.author === authorFilter : true;
-    return textMatch && authorMatch;
+    return textMatch;
   });
 
-  // Fallbacks für fehlende Felder
   filtered.forEach(g => {
     g.updatedAt = g.updatedAt || 0;
     g.timeframe = g.timeframe || "zukunft";
@@ -112,8 +108,9 @@ function renderGoals() {
   const recentGoals = filtered.filter(g => now - g.updatedAt < 7 * 24 * 60 * 60 * 1000);
   const otherGoals = filtered.filter(g => now - g.updatedAt >= 7 * 24 * 60 * 60 * 1000);
 
+  const timeframeOrder = { jetzt: 1, jahr: 2, zukunft: 3 };
   const sorter = {
-    timeframe: (a, b) => a.timeframe.localeCompare(b.timeframe),
+    timeframe: (a, b) => (timeframeOrder[a.timeframe] || 99) - (timeframeOrder[b.timeframe] || 99),
     author: (a, b) => a.author.localeCompare(b.author),
     text: (a, b) => a.text.localeCompare(b.text)
   };
