@@ -87,8 +87,7 @@ function renderGoals() {
   const list = document.getElementById("bucketList");
   const recent = document.getElementById("recentChanges");
   const search = document.getElementById("searchInput")?.value.toLowerCase() || "";
-  const sort = document.getElementById("sortType")?.value || "timeframe";
-
+  
   list.innerHTML = "";
   recent.innerHTML = "";
 
@@ -109,21 +108,7 @@ function renderGoals() {
   const otherGoals = filtered.filter(g => now - g.updatedAt >= 7 * 24 * 60 * 60 * 1000);
 
   const timeframeOrder = { jetzt: 1, jahr: 2, zukunft: 3 };
-  const sorter = {
-    timeframe: (a, b) => (timeframeOrder[a.timeframe] || 99) - (timeframeOrder[b.timeframe] || 99),
-    author: (a, b) => a.author.localeCompare(b.author),
-    text: (a, b) => a.text.localeCompare(b.text)
-  };
-
-  recentGoals.sort(sorter[sort]);
-  otherGoals.sort(sorter[sort]);
-
-  recentGoals.forEach(goal => recent.appendChild(createGoalItem(goal)));
-  otherGoals.forEach(goal => list.appendChild(createGoalItem(goal)));
-
-  updateProgress(filtered);
-}
-
+  
 
 function createGoalItem(goal) {
   const li = document.createElement("li");
@@ -131,7 +116,7 @@ function createGoalItem(goal) {
 
   const commentHtml = goal.comments ? Object.entries(goal.comments).map(([key, c]) =>
     `<div><strong>${c.name}:</strong> ${c.text}
-      <button onclick="deleteComment('${goal.id}', '${key}')" style='float:right;color:red'>🗑</button>
+      
     </div>`).join("") : "";
 
   li.innerHTML = `
@@ -142,7 +127,7 @@ function createGoalItem(goal) {
           <strong>${goal.text}</strong>
         </div>
         <small>${goal.author} – ${goal.timeframe}
-          <button onclick="deleteGoal('${goal.id}')" style='float:right;color:red'>🗑</button>
+          
         </small>
       </div>
       <div class="goal-controls">
@@ -168,14 +153,8 @@ function updateProgress(goals) {
 }
 
 
-function deleteGoal(id) {
-  if (confirm("Willst du diesen Eintrag wirklich löschen?")) {
-    goalsRef.child(id).remove();
-  }
+function deleteGoal(id) {}
 }
 
-function deleteComment(goalId, commentKey) {
-  if (confirm("Willst du diesen Kommentar wirklich löschen?")) {
-    goalsRef.child(goalId).child("comments").child(commentKey).remove();
-  }
+function deleteComment(goalId, commentKey) {}
 }
