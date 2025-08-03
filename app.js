@@ -124,9 +124,15 @@ function renderGoals() {
   updateProgress(filtered);
 }
 
+
 function createGoalItem(goal) {
   const li = document.createElement("li");
   if (goal.done) li.classList.add("done");
+
+  const commentHtml = goal.comments ? Object.entries(goal.comments).map(([key, c]) =>
+    `<div><strong>${c.name}:</strong> ${c.text}
+      <button onclick="deleteComment('${goal.id}', '${key}')" style='float:right;color:red'>🗑</button>
+    </div>`).join("") : "";
 
   li.innerHTML = `
     <div class="goal-content">
@@ -135,19 +141,21 @@ function createGoalItem(goal) {
           <input type="checkbox" ${goal.done ? "checked" : ""} onchange="toggleDone('${goal.id}', ${goal.done})" />
           <strong>${goal.text}</strong>
         </div>
-        <small>${goal.author} – ${goal.timeframe}</small>
+        <small>${goal.author} – ${goal.timeframe}
+          <button onclick="deleteGoal('${goal.id}')" style='float:right;color:red'>🗑</button>
+        </small>
       </div>
       <div class="goal-controls">
         <input type="text" placeholder="Kommentieren…" onkeypress="if(event.key==='Enter'){addComment('${goal.id}', this.value); this.value=''}" />
       </div>
       <div class="comment-section">
-        ${goal.comments ? Object.values(goal.comments).map(c =>
-          `<div><strong>${c.name}:</strong> ${c.text}</div>`).join("") : ""}
+        ${commentHtml}
       </div>
     </div>
   `;
   return li;
 }
+
 
 function updateProgress(goals) {
   if (!goals.length) {
@@ -157,4 +165,17 @@ function updateProgress(goals) {
   const done = goals.filter(g => g.done).length;
   const percent = Math.round((done / goals.length) * 100);
   document.getElementById("progressBar").textContent = `Fortschritt: ${percent}%`;
+}
+
+
+function deleteGoal(id) {
+  if (confirm("Willst du diesen Eintrag wirklich löschen?")) {
+    goalsRef.child(id).remove();
+  }
+}
+
+function deleteComment(goalId, commentKey) {
+  if (confirm("Willst du diesen Kommentar wirklich löschen?")) {
+    goalsRef.child(goalId).child("comments").child(commentKey).remove();
+  }
 }

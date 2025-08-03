@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Delulu-List</title>
+<style>h1, h2, h3, h4, label { color: white; } h1.title { color: black; }</style>
   <link rel="icon" href="delulu-favicon-512x512.png" type="image/png" />
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
   <style>
@@ -150,11 +151,13 @@
 
     <div id="progressBar">Fortschritt: 0%</div>
 
-    <h3>Zuletzt geändert (7 Tage):</h3>
+    <h3 style='color:white;'>Zuletzt geändert (7 Tage):</h3>
     <ul id="recentChanges"></ul>
 
-    <h3>Alle Ziele:</h3>
+    <h3 style='color:white;'>Alle Ziele:</h3>
     <ul id="bucketList"></ul>
+    <h3 style='color:white;'>Erledigt:</h3>
+    <ul id="doneList"></ul>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
