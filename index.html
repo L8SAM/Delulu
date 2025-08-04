@@ -15,7 +15,6 @@
       --highlight: #855dc1;
       --button-neutral: #ddd;
     }
-
     body {
       background: var(--bg);
       color: var(--text);
@@ -23,19 +22,16 @@
       margin: 0;
       padding: 2rem;
     }
-
     .container {
       max-width: 800px;
       margin: auto;
     }
-
     .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 1.5rem;
     }
-
     .title {
       font-family: 'Pacifico', cursive;
       font-size: 2rem;
@@ -43,17 +39,14 @@
       text-shadow: 1px 1px 6px rgba(255,255,255,0.6);
       margin: 0;
     }
-
     h1, h2, h3, h4, label {
       color: white;
     }
-
     .user-select {
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
-
     .search-toggle {
       background: none;
       border: none;
@@ -61,16 +54,13 @@
       cursor: pointer;
       color: var(--text);
     }
-
     .search-bar {
       display: none;
       margin-bottom: 1rem;
     }
-
     .search-bar.active {
       display: block;
     }
-
     input, select, button {
       padding: 10px;
       border-radius: 8px;
@@ -79,22 +69,18 @@
       background: var(--card);
       color: var(--text);
     }
-
     button { border: none; cursor: pointer; }
     button:hover { transform: scale(1.05); }
-
     .controls {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
       margin-bottom: 1rem;
     }
-
     ul {
       list-style: none;
       padding: 0;
     }
-
     li {
       background: var(--card);
       margin-bottom: 10px;
@@ -102,12 +88,10 @@
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-
     .done {
       text-decoration: line-through;
       opacity: 0.6;
     }
-
     #progressBar {
       margin: 1rem 0;
       font-weight: bold;
@@ -145,8 +129,8 @@
 
     <div id="progressBar">Fortschritt: 0%</div>
 
-    <h3 style='color:white;'>Zuletzt geändert (7 Tage):</h3>
-    <ul id="recentChanges"></ul>
+    <h3 style='color:white;'>Was ist neu seit deinem letzten Besuch?</h3>
+    <ul id="newsFeed"></ul>
 
     <h3 style='color:white;'>Alle Ziele:</h3>
     <ul id="bucketList"></ul>
@@ -158,17 +142,10 @@
   <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database-compat.js"></script>
   <script src="app.js"></script>
-
   <script>
     function toggleSearch() {
       document.getElementById("searchContainer").classList.toggle("active");
       document.getElementById("searchInput").focus();
-    }
-
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("service-worker.js")
-        .then(() => console.log("✅ Service Worker registriert"))
-        .catch(e => console.error("❌ Service Worker Fehler:", e));
     }
   </script>
 </body>
