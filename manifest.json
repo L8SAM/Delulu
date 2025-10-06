@@ -3,13 +3,12 @@
   "short_name": "Delulu",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#3a1b60",
+  "background_color": "#d6b8ff",
   "theme_color": "#855dc1",
   "icons": [
-    {
-      "src": "logo.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+    { "src": "delulu-favicon-64x64.png",  "sizes": "64x64",  "type": "image/png" },
+    { "src": "delulu-favicon-128x128.png", "sizes": "128x128","type": "image/png" },
+    { "src": "delulu-favicon-512x512.png", "sizes": "512x512","type": "image/png" },
+    { "src": "logo-512x512.png",           "sizes": "512x512","type": "image/png", "purpose": "any maskable" }
   ]
 }
