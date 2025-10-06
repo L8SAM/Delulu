@@ -145,7 +145,20 @@
   <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database-compat.js"></script>
   <script src="app.js"></script>
   <script>
-    function toggleSearch() {
+  function toggleSearch() {
+    const c = document.getElementById("searchContainer");
+    c.classList.toggle("active");
+    document.getElementById("searchInput").focus();
+  }
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log('✅ Service Worker registriert'))
+      .catch(err => console.error('❌ SW Fehler:', err));
+  }
+</script>
+
+      
       document.getElementById("searchContainer").classList.toggle("active");
       document.getElementById("searchInput").focus();
     }
